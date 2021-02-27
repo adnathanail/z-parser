@@ -1,4 +1,5 @@
 import java_cup.runtime.*;
+import java.util.ArrayList;
 
 scan with {: return lexer.next_token(); :};
 
@@ -13,6 +14,34 @@ parser code {:
       this.column = column;
     }
   }
+
+  static class Node {
+      public ArrayList<Node> children;
+      private static int globalCounter = 0;
+
+      public int counter;
+      private Object value;
+
+      public Node(Object value){
+        Node.globalCounter += 1;
+        this.counter = Node.globalCounter;
+        this.value = value;
+        this.children = new ArrayList<Node>();
+      }
+
+      public void addChild(Node n){ children.add(n); }
+
+      public String toString(){
+        String ret = "";
+        ret += String.format("%d [label=\"%s\"];\n",
+                              counter, value.toString());
+        for(Node n: children){
+          ret += String.format("%d -> %d;\n", this.counter, n.counter);
+          ret += n.toString();
+        }
+        return ret;
+      }
+    }
 
   Lexer lexer;
 
@@ -45,6 +74,28 @@ parser code {:
 
 :};
 
-/* Your code goes here */
-/* Your code goes here */
-/* Your code goes here */
+terminal INTEGER, PLUS, MULT, ILLEGAL_CHARACTER;
+
+nonterminal expr, term, factor;
+
+precedence left PLUS, MULT;
+
+expr ::= expr:e PLUS term:t {:
+           Node n = new Node("PLUS");
+           n.addChild(new Node(e));
+           n.addChild(new Node(t));
+           RESULT = n;
+       :}
+       | term:t {: RESULT = new Node(t); :}
+       ;
+
+term ::= term:t MULT factor:f {:
+           Node n = new Node("MULT");
+           n.addChild(new Node(t));
+           n.addChild(new Node(f));
+           RESULT = n;
+       :}
+       | factor:f {: RESULT = new Node(f); :}
+       ;
+
+factor ::= INTEGER:i {: RESULT = new Node(i); :};

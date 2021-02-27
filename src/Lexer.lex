@@ -16,9 +16,17 @@ import java_cup.runtime.*;
   }
 %}
 
-/* Your code goes here */
-/* Your code goes here */
-/* Your code goes here */
+Whitespace = \r|\n|\r\n|" "|"\t"
+Digit = [0-9]
+Integer = (0|[1-9]{Digit}*)
+
+%%
+<YYINITIAL> {
+  {Integer}     { return symbol(sym.INTEGER, Integer.parseInt(yytext())); }
+  {Whitespace}  { /* do nothing */               }
+  "+"           { return symbol(sym.PLUS);       }
+  "*"           { return symbol(sym.MULT);       }
+}
 
 /* error fallback */
 [^]  {
