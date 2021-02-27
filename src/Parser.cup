@@ -74,12 +74,12 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, DATATYPE, IDENTIFIER, ASSIGN, INTEGER;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, DATATYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT;
 
-nonterminal program, statements, statement;
+nonterminal program, statements, statement, value, optional_return;
 
 program ::=
-    FDEF MAIN LPAREN RPAREN LCURL statements:ss RCURL SEMICOL {:
+    FDEF MAIN LPAREN RPAREN LCURL statements:ss optional_return RCURL SEMICOL {:
         Node n = new Node("MAIN");
         n.addChild((Node)ss);
 
@@ -89,6 +89,10 @@ program ::=
 
         RESULT = n;
     :};
+
+optional_return ::=
+    /* empty */ |
+    RETURN SEMICOL;
 
 statements ::=
     statements:ss statement:s SEMICOL {:
@@ -106,10 +110,16 @@ statement ::=
         n.addChild(new Node(s));
         RESULT = n;
     :} |
-    DATATYPE:dt IDENTIFIER:id ASSIGN INTEGER:v {:
+    DATATYPE:dt IDENTIFIER:id ASSIGN value:v {:
         Node n = new Node("ASSIGNMENT");
         n.addChild(new Node(dt));
         n.addChild(new Node(id));
         n.addChild(new Node(v));
         RESULT = n;
     :};
+
+value ::=
+    INTEGER:i {: RESULT = i; :} |
+    CHAR:c {: RESULT = c; :} |
+    IDENTIFIER:i {: RESULT = i; :} |
+    FLOAT:f {: RESULT = f; :};
