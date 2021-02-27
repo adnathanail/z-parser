@@ -23,19 +23,32 @@ Digit = [0-9]
 CharChar = {Letter} | {Digit} | " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | \\  | "]" | "^" | "_" | "`" | "{" | "¦" |  "}" | "~"
 /* ' and " ?? */
 String = {CharChar}+
+DataType = "bool" | "int" | "rat" | "float" | "char" | "str" | "seq"
+IdLetter = [a-eg-su-zA-EG-SU-Z]
+IdChar = {Letter} | {Digit} | "_"
+Identifier = {Letter}{IdChar}*
+Integer = (0|[1-9]{Digit}*)
 
 %%
 <YYINITIAL> {
+    // Keywords
     "fdef"        { return symbol(sym.FDEF); }
     "print"       { return symbol(sym.PRINT); }
     "main"        { return symbol(sym.MAIN); }
+    {DataType}    { return symbol(sym.DATATYPE, yytext()); }
 
     {Whitespace}  { /* do nothing */               }
+
+    // Characters
     ";"           { return symbol(sym.SEMICOL);    }
     "("           { return symbol(sym.LPAREN);     }
     ")"           { return symbol(sym.RPAREN);     }
     "{"           { return symbol(sym.LCURL);      }
     "}"           { return symbol(sym.RCURL);      }
+    ":="          { return symbol(sym.ASSIGN);     }
+
+    {Integer}     { return symbol(sym.INTEGER, Integer.parseInt(yytext())); }
+    {Identifier}  { return symbol(sym.IDENTIFIER, yytext()); }
     \"{String}\"  {
         String str =  yytext().substring(1,yylength()-1);
         return symbol(sym.STRING, str);

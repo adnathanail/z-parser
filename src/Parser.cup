@@ -74,7 +74,7 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, DATATYPE, IDENTIFIER, ASSIGN, INTEGER;
 
 nonterminal program, statements, statement;
 
@@ -107,5 +107,12 @@ statement ::=
     PRINT STRING:s {:
         Node n = new Node("PRINT");
         n.addChild(new Node(s));
+        RESULT = n;
+    :} |
+    DATATYPE:dt IDENTIFIER:id ASSIGN INTEGER:v {:
+        Node n = new Node("ASSIGNMENT");
+        n.addChild(new Node(dt));
+        n.addChild(new Node(id));
+        n.addChild(new Node(v));
         RESULT = n;
     :};
