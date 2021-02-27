@@ -74,28 +74,38 @@ parser code {:
 
 :};
 
-terminal INTEGER, PLUS, MULT, ILLEGAL_CHARACTER;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING;
 
-nonterminal expr, term, factor;
+nonterminal program, statements, statement;
 
-precedence left PLUS, MULT;
+program ::=
+    FDEF MAIN LPAREN RPAREN LCURL statements:ss RCURL SEMICOL {:
+        Node n = new Node("MAIN");
+        n.addChild((Node)ss);
 
-expr ::= expr:e PLUS term:t {:
-           Node n = new Node("PLUS");
-           n.addChild(new Node(e));
-           n.addChild(new Node(t));
-           RESULT = n;
-       :}
-       | term:t {: RESULT = new Node(t); :}
-       ;
+        // System.out.println("digraph G {");
+        // System.out.println(n);
+        // System.out.println("}");
 
-term ::= term:t MULT factor:f {:
-           Node n = new Node("MULT");
-           n.addChild(new Node(t));
-           n.addChild(new Node(f));
-           RESULT = n;
-       :}
-       | factor:f {: RESULT = new Node(f); :}
-       ;
+        RESULT = n;
+    :};
 
-factor ::= INTEGER:i {: RESULT = new Node(i); :};
+statements ::=
+    statement:s SEMICOL {:
+        Node n = new Node("STATEMENT");
+        n.addChild((Node)s);
+        RESULT = n;
+    :} |
+    statements:ss statement:s SEMICOL {:
+        Node n = new Node("STATEMENTS");
+        n.addChild((Node)ss);
+        n.addChild((Node)s);
+        RESULT = n;
+    :};
+
+statement ::=
+    PRINT STRING:s {:
+        Node n = new Node("PRINT");
+        n.addChild(new Node(s));
+        RESULT = n;
+    :};

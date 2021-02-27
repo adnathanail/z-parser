@@ -7,6 +7,7 @@ import java_cup.runtime.*;
 %line
 %column
 %states IN_COMMENT
+// %debug
 %{
   private Symbol symbol(int type) {
     return new Symbol(type, yyline, yycolumn);
@@ -17,15 +18,28 @@ import java_cup.runtime.*;
 %}
 
 Whitespace = \r|\n|\r\n|" "|"\t"
+Letter = [a-zA-Z]
 Digit = [0-9]
-Integer = (0|[1-9]{Digit}*)
+CharChar = {Letter} | {Digit} | " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | \\  | "]" | "^" | "_" | "`" | "{" | "¦" |  "}" | "~"
+/* ' and " ?? */
+String = {CharChar}+
 
 %%
 <YYINITIAL> {
-  {Integer}     { return symbol(sym.INTEGER, Integer.parseInt(yytext())); }
-  {Whitespace}  { /* do nothing */               }
-  "+"           { return symbol(sym.PLUS);       }
-  "*"           { return symbol(sym.MULT);       }
+    "fdef"        { return symbol(sym.FDEF); }
+    "print"       { return symbol(sym.PRINT); }
+    "main"        { return symbol(sym.MAIN); }
+
+    {Whitespace}  { /* do nothing */               }
+    ";"           { return symbol(sym.SEMICOL);    }
+    "("           { return symbol(sym.LPAREN);     }
+    ")"           { return symbol(sym.RPAREN);     }
+    "{"           { return symbol(sym.LCURL);      }
+    "}"           { return symbol(sym.RCURL);      }
+    \"{String}\"  {
+        String str =  yytext().substring(1,yylength()-1);
+        return symbol(sym.STRING, str);
+    }
 }
 
 /* error fallback */
