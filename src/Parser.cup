@@ -91,16 +91,13 @@ program ::=
     :};
 
 statements ::=
-    statement:s SEMICOL {:
-        Node n = new Node("STATEMENT");
+    statements:ss statement:s SEMICOL {:
+        Node n = (Node)ss;
         n.addChild((Node)s);
         RESULT = n;
     :} |
-    statements:ss statement:s SEMICOL {:
-        Node n = new Node("STATEMENTS");
-        n.addChild((Node)ss);
-        n.addChild((Node)s);
-        RESULT = n;
+    /* empty */ {:
+        RESULT = new Node("STATEMENTS");
     :};
 
 statement ::=
