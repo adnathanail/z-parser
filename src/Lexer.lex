@@ -26,8 +26,7 @@ CharChar = {Letter} | {Digit} | " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | 
 /* ' and " ?? */
 String = {CharChar}+
 PrimType = "bool" | "int" | "rat" | "float" | "char" | "str"
-IdLetter = [a-eg-su-zA-EG-SU-Z]
-IdChar = {IdLetter} | {Digit} | "_"
+IdChar = {Letter} | {Digit} | "_"
 Identifier = {Letter}{IdChar}*
 Natural = 0|[1-9]{Digit}*
 NonZeroNatural = [1-9]{Digit}*
@@ -46,6 +45,9 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "return"       { return symbol(sym.RETURN);                              }
     "while"        { return symbol(sym.WHILE);                               }
     "break"        { return symbol(sym.BREAK);                               }
+    "for"          { return symbol(sym.FOR);                                 }
+    "of"           { return symbol(sym.OF);                                  }
+    "range"        { return symbol(sym.RANGE);                               }
 
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
     "seq"          { return symbol(sym.SEQ);                                 }

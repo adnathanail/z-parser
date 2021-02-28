@@ -76,9 +76,9 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE;
 
-nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term, variable;
+nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term, variable, range, range_val;
 
 
 program ::= definitions:ds main:m {:
@@ -257,7 +257,44 @@ sequence_items ::=
     :};
 
 expression ::=
+    LSQUARE expression:e FOR IDENTIFIER:i OF range:r RSQUARE {:
+        Node n = new Node("LISTCOMP");
+        n.addChild((Node)e);
+        n.addChild((Node)r);
+        RESULT = n;
+    :} |
+    LSQUARE expression:e1 FOR IDENTIFIER:i OF range:r COMMA IF expression:e2 RSQUARE {:
+        Node n = new Node("LISTCOMP");
+        n.addChild((Node)e1);
+        n.addChild((Node)r);
+        n.addChild((Node)e2);
+        RESULT = n;
+    :} |
     bool_or:bo {: RESULT = (Node)bo; :};
+
+range ::=
+    RANGE LPAREN range_val:rv RPAREN {:
+        Node n = new Node("RANGE");
+        n.addChild(new Node(rv));
+        RESULT = n;
+    :} |
+    RANGE LPAREN range_val:rv1 COMMA range_val:rv2  RPAREN {:
+        Node n = new Node("RANGE");
+        n.addChild(new Node(rv1));
+        n.addChild(new Node(rv2));
+        RESULT = n;
+    :} |
+    RANGE LPAREN range_val:rv1 COMMA range_val:rv2 COMMA range_val:rv3  RPAREN {:
+        Node n = new Node("RANGE");
+        n.addChild(new Node(rv1));
+        n.addChild(new Node(rv2));
+        n.addChild(new Node(rv3));
+        RESULT = n;
+    :};
+
+range_val ::=
+    INTEGER: i {: RESULT = i; :} |
+    IDENTIFIER: i {: RESULT = i; :};
 
 bool_or ::=
     bool_or:bo OR bool_and:ba {:
