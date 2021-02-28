@@ -1,0 +1,3 @@
+CORRECT GUESSES:
+Function body can't be empty
+Main can't return

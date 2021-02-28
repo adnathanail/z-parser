@@ -1,0 +1,43 @@
+Paragraph: 5
+Problem: -345_11/3 is given as an example of a rational, but the _ is not explained.
+My solution: I will assume the _ is to be ignored and allow it in all numbers, similar to Java.
+
+Paragraph:5
+Problem: Is 0.0 a valid float?
+My solution: I will allow it.
+
+Paragraph: 5
+Problem: Is the .x required? Is 1 a valid float?
+My solution: I will require the .x 1 is not valid, 1.0 is.
+
+Paragraph: 5
+Problem: Is 5.5 / 2 a valid rational?
+My solution: I will assume only integers can be the 2 parts of a rational.
+
+Paragraph: 6
+Problem: The character ’ (U+2019) is used as opposed to ' (U+0027) however the latter is what appears on the keyboard and is used in virtually all languages.
+My solution: I will use U+0027 as my char delimiter and will reject U+2019.
+
+Paragraph: 6
+Problem: Can ' appear in a char?
+My solution: I will not accept ' as a valid char.
+
+Paragraph 8:
+Problem: Can " appear in a string?
+My solution: I will not accept " as a valid string char.
+
+Paragraph: 10
+Problem: It is not clear whether we can omit both the start and end indices in sequence slicing, like "foo := bar[:]".
+My solution: This seems redundant so I will reject this syntax.
+
+Paragraph: 18
+Problem: It is stated that functions cannot be empty, but no information is given for while, if or thread.
+My solution: I will assume that no closures (functions, whiles, ifs, threads) can have empty bodies.
+
+Paragraph: 22
+Problem: Can break be given an integer variable to inform it how many loops to break?
+My solution: I will assume it cannot as I can't think of a program structure where this would really make sense.
+
+Paragraph: 23
+Problem: The example for this shows wait(t1); as a valid statement, but no other examples of an expression acting as a statement are given. Are all expressions statements like python?
+My solution: I will assume not all expressions are statements. wait is implemented as a special case.

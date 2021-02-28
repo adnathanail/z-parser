@@ -368,6 +368,10 @@ range ::=
 
 range_val ::=
     INTEGER: i {: RESULT = new Node(i); :} |
+    MINUS INTEGER:i {:
+        Integer mi = Integer.parseInt("-" + i.toString());
+        RESULT = new Node(mi);
+    :} |
     variable_identifier: vi {: RESULT = vi; :};
 
 bool_or ::=
