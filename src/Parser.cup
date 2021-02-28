@@ -76,9 +76,9 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP;
 
-nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term, variable, range, range_val;
+nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier;
 
 
 program ::= definitions:ds main:m {:
@@ -190,35 +190,35 @@ semicolon_statement ::=
         n.addChild(new Node(i));
         RESULT = n;
     :} |
-    THREAD IDENTIFIER:i ASSIGN LCURL statements:ss RCURL {:
+    THREAD variable_identifier:vi ASSIGN LCURL statements:ss RCURL {:
         Node n = new Node("THREAD");
-        n.addChild(new Node(i));
+        n.addChild((Node)vi);
         n.addChild((Node)ss);
         RESULT = n;
     :} |
-    WAIT LPAREN IDENTIFIER:i RPAREN {:
+    WAIT LPAREN variable_identifier:vi RPAREN {:
         Node n = new Node("WAIT");
-        n.addChild(new Node(i));
+        n.addChild((Node)vi);
         RESULT = n;
     :};
 
 variable ::=
-    datatype:dt IDENTIFIER:id {:
+    datatype:dt variable_identifier:vi {:
         Node n = new Node("DECLARATION");
         n.addChild((Node)dt);
-        n.addChild(new Node(id));
+        n.addChild((Node)vi);
         RESULT = n;
     :} |
-    datatype:dt IDENTIFIER:id ASSIGN expression:e {:
+    datatype:dt variable_identifier:vi ASSIGN expression:e {:
         Node n = new Node("INITIALISATION");
         n.addChild((Node)dt);
-        n.addChild(new Node(id));
+        n.addChild((Node)vi);
         n.addChild((Node)e);
         RESULT = n;
     :} |
-    IDENTIFIER:id ASSIGN expression:e {:
+    variable_identifier:vi ASSIGN expression:e {:
         Node n = new Node("ASSIGNMENT");
-        n.addChild(new Node(id));
+        n.addChild((Node)vi);
         n.addChild((Node)e);
         RESULT = n;
     :};
@@ -246,11 +246,21 @@ statement ::=
 
 datatype ::=
     PRIMTYPE:dt {: RESULT = new Node(dt); :} |
-    SEQ LANGLE datatype:dt RANGLE {:
+    SEQ LANGLE aggregate_datatype:dt RANGLE {:
         Node n = new Node("SEQUENCE");
         n.addChild((Node)dt);
         RESULT = n;
+    :} |
+    DICT LANGLE aggregate_datatype:dt1 COMMA aggregate_datatype:dt2 RANGLE {:
+        Node n = new Node("DICTIONARY");
+        n.addChild((Node)dt1);
+        n.addChild((Node)dt2);
+        RESULT = n;
     :};
+
+aggregate_datatype ::=
+    datatype:dt {: RESULT = (Node)dt; :} |
+    TOP {: RESULT = new Node("TOP"); :};
 
 sequence ::= LSQUARE sequence_items:sis RSQUARE {: RESULT = sis; :};
 
@@ -264,6 +274,23 @@ sequence_items ::=
     sequence_items:sis COMMA expression:e {:
         Node n = (Node)sis;
         n.addChild((Node)e);
+        RESULT = n;
+    :};
+
+dictionary ::= LPAREN dictionary_items:dis RPAREN {: RESULT = dis; :};
+
+dictionary_items ::=
+    /* empty */ {: RESULT = new Node("DICTIONARY"); :} |
+    expression:e1 COLON expression:e2 {:
+        Node n = new Node("DICTIONARY");
+        n.addChild((Node)e1);
+        n.addChild((Node)e2);
+        RESULT = n;
+    :} |
+    dictionary_items:dis COMMA expression:e1 COLON expression:e2 {:
+        Node n = (Node)dis;
+        n.addChild((Node)e1);
+        n.addChild((Node)e2);
         RESULT = n;
     :};
 
@@ -286,26 +313,26 @@ expression ::=
 range ::=
     RANGE LPAREN range_val:rv RPAREN {:
         Node n = new Node("RANGE");
-        n.addChild(new Node(rv));
+        n.addChild((Node)rv);
         RESULT = n;
     :} |
     RANGE LPAREN range_val:rv1 COMMA range_val:rv2  RPAREN {:
         Node n = new Node("RANGE");
-        n.addChild(new Node(rv1));
-        n.addChild(new Node(rv2));
+        n.addChild((Node)rv1);
+        n.addChild((Node)rv2);
         RESULT = n;
     :} |
     RANGE LPAREN range_val:rv1 COMMA range_val:rv2 COMMA range_val:rv3  RPAREN {:
         Node n = new Node("RANGE");
-        n.addChild(new Node(rv1));
-        n.addChild(new Node(rv2));
-        n.addChild(new Node(rv3));
+        n.addChild((Node)rv1);
+        n.addChild((Node)rv2);
+        n.addChild((Node)rv3);
         RESULT = n;
     :};
 
 range_val ::=
-    INTEGER: i {: RESULT = i; :} |
-    IDENTIFIER: i {: RESULT = i; :};
+    INTEGER: i {: RESULT = new Node(i); :} |
+    variable_identifier: vi {: RESULT = vi; :};
 
 bool_or ::=
     bool_or:bo OR bool_and:ba {:
@@ -416,19 +443,29 @@ value ::=
     STRING:s         {: RESULT = new Node(s); :} |
     number:n         {: RESULT = new Node(n); :} |
     sequence:s       {: RESULT = s; :} |
+    dictionary:d     {: RESULT = d; :} |
     TRUE             {: RESULT = new Node("TRUE"); :} |
     FALSE            {: RESULT = new Node("TRUE"); :} |
-    IDENTIFIER:i arguments:as {:
+    variable_identifier:vi arguments:as {:
         Node n = new Node("FUNCTION CALL");
-        n.addChild(new Node(i));
+        n.addChild((Node)vi);
         n.addChild((Node)as);
         RESULT = n;
     :} |
-    IDENTIFIER:i LSQUARE expression:e RSQUARE {:
-        Node n = new Node("SEQUENCE ACCES");
-        n.addChild(new Node(i));
-        n.addChild((Node)e);
+    variable_identifier:vi {: RESULT = (Node)vi; :} |
+    LPAREN expression:e RPAREN {: RESULT = (Node)e; :};
+
+variable_identifier ::=
+    IDENTIFIER:i {: RESULT = new Node(i); :} |
+    variable_identifier:vi1 LSQUARE variable_identifier:vi2 RSQUARE {:
+        Node n = new Node("IDENTIFIER");
+        n.addChild((Node)vi1);
+        n.addChild((Node)vi2);
         RESULT = n;
     :} |
-    IDENTIFIER:i     {: RESULT = new Node(i); :} |
-    LPAREN expression:e RPAREN {: RESULT = (Node)e; :};
+    variable_identifier:vi LSQUARE INTEGER:i RSQUARE {:
+        Node n = new Node("IDENTIFIER");
+        n.addChild((Node)vi);
+        n.addChild(new Node(i));
+        RESULT = n;
+    :};

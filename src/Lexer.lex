@@ -53,6 +53,8 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
 
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
     "seq"          { return symbol(sym.SEQ);                                 }
+    "dict"         { return symbol(sym.DICT);                                }
+    "top"          { return symbol(sym.TOP);                                 }
 
     {Whitespace}   {                                        }
     {SglComment}   {                                        }
@@ -81,6 +83,8 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "="            { return symbol(sym.EQUAL);                               }
     "<="           { return symbol(sym.LEQ);                                 }
     "!="           { return symbol(sym.NEQ);                                 }
+    ":"            { return symbol(sym.COLON);                               }
+    "?"            { return symbol(sym.QUEST);                               }
 
     \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
     {Rational}     { return symbol(sym.RATIONAL, yytext());                  }
