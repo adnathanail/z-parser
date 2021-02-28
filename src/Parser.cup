@@ -76,7 +76,7 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT;
 
 nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term, variable, range, range_val;
 
@@ -187,6 +187,17 @@ semicolon_statement ::=
     BREAK {: RESULT = new Node("BREAK"); :} |
     BREAK INTEGER:i {:
         Node n = new Node("BREAK");
+        n.addChild(new Node(i));
+        RESULT = n;
+    :} |
+    THREAD IDENTIFIER:i ASSIGN LCURL statements:ss RCURL {:
+        Node n = new Node("THREAD");
+        n.addChild(new Node(i));
+        n.addChild((Node)ss);
+        RESULT = n;
+    :} |
+    WAIT LPAREN IDENTIFIER:i RPAREN {:
+        Node n = new Node("WAIT");
         n.addChild(new Node(i));
         RESULT = n;
     :};

@@ -48,13 +48,15 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "for"          { return symbol(sym.FOR);                                 }
     "of"           { return symbol(sym.OF);                                  }
     "range"        { return symbol(sym.RANGE);                               }
+    "thread"       { return symbol(sym.THREAD);                              }
+    "wait"         { return symbol(sym.WAIT);                                }
 
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
     "seq"          { return symbol(sym.SEQ);                                 }
 
-    {Whitespace}   { /* do nothing */                                        }
-    {SglComment}   { /* do nothing */                                        }
-    {MltComment}   { /* do nothing */                                        }
+    {Whitespace}   {                                        }
+    {SglComment}   {                                        }
+    {MltComment}   {                                        }
 
     // Characters
     ";"            { return symbol(sym.SEMICOL);                             }
