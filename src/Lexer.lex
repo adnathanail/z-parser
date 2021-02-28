@@ -51,6 +51,7 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "range"        { return symbol(sym.RANGE);                               }
     "thread"       { return symbol(sym.THREAD);                              }
     "wait"         { return symbol(sym.WAIT);                                }
+    "alias"        { return symbol(sym.ALIAS);                               }
 
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
     "seq"          { return symbol(sym.SEQ);                                 }

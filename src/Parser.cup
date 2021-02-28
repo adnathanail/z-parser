@@ -76,7 +76,7 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, TDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP;
+terminal ILLEGAL_CHARACTER, FDEF, TDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP, ALIAS;
 
 nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in, definition, typedef;
 
@@ -209,6 +209,12 @@ semicolon_statement ::=
         Node n = new Node("WAIT");
         n.addChild((Node)vi);
         RESULT = n;
+    :} |
+    ALIAS datatype:dt IDENTIFIER:i {:
+        Node n = new Node("ALIAS");
+        n.addChild((Node)dt);
+        n.addChild(new Node(i));
+        RESULT = n;
     :};
 
 variable ::=
@@ -265,7 +271,8 @@ datatype ::=
         n.addChild((Node)dt1);
         n.addChild((Node)dt2);
         RESULT = n;
-    :};
+    :} |
+    IDENTIFIER:i {: RESULT = new Node(i); :};
 
 aggregate_datatype ::=
     datatype:dt {: RESULT = (Node)dt; :} |
