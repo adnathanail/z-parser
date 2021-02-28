@@ -1,7 +1,5 @@
 import java_cup.runtime.*;
 import java.util.ArrayList;
-import java.lang.reflect.Field;
-import java.util.Arrays;
 
 scan with {: return lexer.next_token(); :};
 
@@ -18,32 +16,31 @@ parser code {:
   }
 
   static class Node {
-      public ArrayList<Node> children;
-      private static int globalCounter = 0;
+    public ArrayList<Node> children;
+    private static int globalCounter = 0;
 
-      public int counter;
-      private Object value;
+    public int counter;
+    private Object value;
 
-      public Node(Object value){
-        Node.globalCounter += 1;
-        this.counter = Node.globalCounter;
-        this.value = value;
-        this.children = new ArrayList<Node>();
-      }
-
-      public void addChild(Node n){ children.add(n); }
-
-      public String toString(){
-        String ret = "";
-        ret += String.format("%d [label=\"%s\"];\n",
-                              counter, value.toString());
-        for(Node n: children){
-          ret += String.format("%d -> %d;\n", this.counter, n.counter);
-          ret += n.toString();
-        }
-        return ret;
-      }
+    public Node(Object value){
+      Node.globalCounter += 1;
+      this.counter = Node.globalCounter;
+      this.value = value;
+      this.children = new ArrayList<Node>();
     }
+
+    public void addChild(Node n){ children.add(n); }
+
+    public String toString(){
+      String ret = "";
+      ret += String.format("%d [label=\"%s\"];\n", counter, value.toString());
+      for(Node n: children){
+        ret += String.format("%d -> %d;\n", this.counter, n.counter);
+        ret += n.toString();
+      }
+      return ret;
+    }
+  }
 
   Lexer lexer;
 
@@ -51,8 +48,8 @@ parser code {:
   public boolean syntaxErrors;
 
   public Parser(Lexer lex) {
-      super(lex);
-      lexer = lex;
+    super(lex);
+    lexer = lex;
   }
 
   public void syntax_error(Symbol cur_token) {
@@ -62,14 +59,12 @@ parser code {:
   public void unrecovered_syntax_error(Symbol cur_token) throws java.lang.Exception {
     this.syntaxErrors = true;
     report_fatal_error(
-      "Syntax error at line " + (cur_token.left+1) + ", column "
-      + cur_token.right + ".\n", null
+      "Syntax error at line " + (cur_token.left+1) + ", column " + cur_token.right + ".\n",
+      null
     );
   }
 
-  public void custom_err_report(String message, int line, int column)
-    throws java.lang.Exception
-  {
+  public void custom_err_report(String message, int line, int column) throws java.lang.Exception {
     this.syntaxErrors = true;
     report_fatal_error( message + "\n", new ErrorInfo(line, column) );
   }
@@ -78,7 +73,7 @@ parser code {:
 
 terminal ILLEGAL_CHARACTER, FDEF, TDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP, ALIAS, DOT, POW, READ;
 
-nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in, definition, typedef, dottable_variable_identifier, maths_pow;
+nonterminal program, statements, semicolon_statement, statement, main_statements, main_statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in, definition, typedef, dottable_variable_identifier, maths_pow;
 
 
 program ::= definitions:ds main:m {:
@@ -106,11 +101,10 @@ definition ::=
     typedef:td {: RESULT = td; :} |
     variable:v {: RESULT = v; :};
 
-/* TODO prevent main having return values */
 main ::=
-    FDEF MAIN LPAREN RPAREN LCURL statements:ss RCURL SEMICOL {:
+    FDEF MAIN LPAREN RPAREN LCURL main_statements:mss RCURL SEMICOL {:
         Node n = new Node("MAIN");
-        n.addChild((Node)ss);
+        n.addChild((Node)mss);
         RESULT = n;
     :};
 
@@ -129,7 +123,8 @@ function ::=
         RESULT = n;
     :};
 
-parameters ::= LPAREN parameter_items:pis RPAREN {: RESULT = pis; :};
+parameters ::=
+    LPAREN parameter_items:pis RPAREN {: RESULT = pis; :};
 
 parameter_items ::=
     /* empty */ {: RESULT = new Node("PARAMETERS"); :} |
@@ -154,7 +149,8 @@ typedef ::=
         RESULT = n;
     :};
 
-arguments ::= LPAREN argument_items:ais RPAREN {: RESULT = ais; :};
+arguments ::=
+    LPAREN argument_items:ais RPAREN {: RESULT = ais; :};
 
 argument_items ::=
     /* empty */ {: RESULT = new Node("ARGUMENTS"); :} |
@@ -166,6 +162,18 @@ argument_items ::=
     argument_items:ais COMMA expression:e {:
         Node n = (Node)ais;
         n.addChild((Node)e);
+        RESULT = n;
+    :};
+
+main_statements ::=
+    main_statements:mss main_statement:ms {:
+        Node n = (Node)mss;
+        n.addChild((Node)ms);
+        RESULT = n;
+    :} |
+    main_statement:ms {:
+        Node n = new Node("STATEMENTS");
+        n.addChild((Node)ms);
         RESULT = n;
     :};
 
@@ -195,11 +203,6 @@ semicolon_statement ::=
     variable:v {: RESULT = (Node)v; :} |
     typedef:td {: RESULT = (Node)td; :} |
     RETURN {: RESULT = new Node("RETURN"); :} |
-    RETURN expression:e {:
-        Node n = new Node("RETURN");
-        n.addChild((Node)e);
-        RESULT = n;
-    :} |
     BREAK {: RESULT = new Node("BREAK"); :} |
     BREAK INTEGER:i {:
         Node n = new Node("BREAK");
@@ -245,7 +248,7 @@ variable ::=
         RESULT = n;
     :};
 
-statement ::=
+main_statement ::=
     semicolon_statement:ss SEMICOL {: RESULT = (Node)ss; :} |
     IF LPAREN expression:e RPAREN LCURL statements:ss1 RCURL ELSE LCURL statements:ss2 RCURL {:
         Node n = new Node("IF");
@@ -263,6 +266,14 @@ statement ::=
     WHILE LCURL statements:ss RCURL {:
         Node n = new Node("WHILE");
         n.addChild((Node)ss);
+        RESULT = n;
+    :};
+
+statement ::=
+    main_statement:s {: RESULT = (Node)s; :} |
+    RETURN expression:e SEMICOL {:
+        Node n = new Node("RETURN");
+        n.addChild((Node)e);
         RESULT = n;
     :};
 
@@ -285,7 +296,8 @@ aggregate_datatype ::=
     datatype:dt {: RESULT = (Node)dt; :} |
     TOP {: RESULT = new Node("TOP"); :};
 
-sequence ::= LSQUARE sequence_items:sis RSQUARE {: RESULT = sis; :};
+sequence ::=
+    LSQUARE sequence_items:sis RSQUARE {: RESULT = sis; :};
 
 sequence_items ::=
     /* empty */ {: RESULT = new Node("SEQUENCE"); :} |
@@ -300,7 +312,8 @@ sequence_items ::=
         RESULT = n;
     :};
 
-dictionary ::= LPAREN dictionary_items:dis RPAREN {: RESULT = dis; :};
+dictionary ::=
+    LPAREN dictionary_items:dis RPAREN {: RESULT = dis; :};
 
 dictionary_items ::=
     /* empty */ {: RESULT = new Node("DICTIONARY"); :} |
