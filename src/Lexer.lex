@@ -28,9 +28,9 @@ IdLetter = [a-eg-su-zA-EG-SU-Z]
 IdChar = {IdLetter} | {Digit} | "_"
 Identifier = {Letter}{IdChar}*
 Natural = 0|[1-9]{Digit}*
-Integer = "-"? {Natural}
-Float = {Integer} "." {Digit}?
 NonZeroNatural = [1-9]{Digit}*
+Integer = {Natural}
+Float = {Integer} "." {Digit}?
 Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
 
 %%

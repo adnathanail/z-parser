@@ -1,5 +1,7 @@
 import java_cup.runtime.*;
 import java.util.ArrayList;
+import java.lang.reflect.Field;
+import java.util.Arrays;
 
 scan with {: return lexer.next_token(); :};
 
@@ -158,9 +160,9 @@ statements ::=
     :};
 
 semicolon_statement ::=
-    PRINT STRING:s {:
+    PRINT expression:e {:
         Node n = new Node("PRINT");
-        n.addChild(new Node(s));
+        n.addChild((Node)e);
         RESULT = n;
     :} |
     datatype:dt IDENTIFIER:id {:
@@ -325,9 +327,19 @@ maths_term ::=
 
 value ::=
     INTEGER:i        {: RESULT = new Node(i); :} |
+    MINUS INTEGER:i        {:
+        Integer mi = Integer.parseInt("-" + i.toString());
+        RESULT = new Node(mi);
+    :} |
     FLOAT:f          {: RESULT = new Node(f); :} |
+    MINUS FLOAT:f          {:
+        Float mf = Float.parseFloat("-" + f.toString());
+        RESULT = new Node(mf);
+    :} |
     RATIONAL:r       {: RESULT = new Node(r); :} |
+    MINUS RATIONAL:r       {: RESULT = new Node("-" + r); :} |
     CHAR:c           {: RESULT = new Node(c); :} |
+    STRING:s         {: RESULT = new Node(s); :} |
     number:n         {: RESULT = new Node(n); :} |
     sequence:s       {: RESULT = s; :} |
     TRUE             {: RESULT = new Node("TRUE"); :} |
