@@ -42,6 +42,9 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "else"         { return symbol(sym.ELSE);                                }
     "main"         { return symbol(sym.MAIN);                                }
     "return"       { return symbol(sym.RETURN);                              }
+    "while"        { return symbol(sym.WHILE);                               }
+    "break"        { return symbol(sym.BREAK);                               }
+
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
     "seq"          { return symbol(sym.SEQ);                                 }
 

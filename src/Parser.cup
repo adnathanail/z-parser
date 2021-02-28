@@ -76,7 +76,7 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK;
 
 nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, functions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term;
 
@@ -189,7 +189,8 @@ semicolon_statement ::=
         Node n = new Node("RETURN");
         n.addChild((Node)e);
         RESULT = n;
-    :};
+    :} |
+    BREAK {: RESULT = new Node("BREAK"); :};
 
 statement ::=
     semicolon_statement:ss SEMICOL {: RESULT = (Node)ss; :} |
@@ -203,6 +204,11 @@ statement ::=
     IF LPAREN expression:e RPAREN LCURL statements:ss RCURL {:
         Node n = new Node("IF");
         n.addChild((Node)e);
+        n.addChild((Node)ss);
+        RESULT = n;
+    :} |
+    WHILE LCURL statements:ss RCURL {:
+        Node n = new Node("WHILE");
         n.addChild((Node)ss);
         RESULT = n;
     :};
@@ -348,6 +354,12 @@ value ::=
         Node n = new Node("FUNCTION CALL");
         n.addChild(new Node(i));
         n.addChild((Node)as);
+        RESULT = n;
+    :} |
+    IDENTIFIER:i LSQUARE expression:e RSQUARE {:
+        Node n = new Node("SEQUENCE ACCES");
+        n.addChild(new Node(i));
+        n.addChild((Node)e);
         RESULT = n;
     :} |
     IDENTIFIER:i     {: RESULT = new Node(i); :} |
