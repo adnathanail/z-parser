@@ -78,12 +78,12 @@ parser code {:
 
 terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK;
 
-nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, functions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term;
+nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term, variable;
 
 
-program ::= functions:fs main:m {:
+program ::= definitions:ds main:m {:
         Node n = new Node("PROGRAM");
-        n.addChild((Node)fs);
+        n.addChild((Node)ds);
         n.addChild((Node)m);
 
         // System.out.println("digraph G {");
@@ -93,19 +93,24 @@ program ::= functions:fs main:m {:
         RESULT = n;
     :};
 
+definitions ::=
+    /* empty */ {: RESULT = new Node("DEFINITIONS"); :} |
+    definitions:ds function:f {:
+        Node n = (Node)ds;
+        n.addChild((Node)f);
+        RESULT = n;
+    :} |
+    definitions:ds variable:v SEMICOL {:
+        Node n = (Node)ds;
+        n.addChild((Node)v);
+        RESULT = n;
+    :};
+
 /* TODO prevent main having return values */
 main ::=
     FDEF MAIN LPAREN RPAREN LCURL statements:ss RCURL SEMICOL {:
         Node n = new Node("MAIN");
         n.addChild((Node)ss);
-        RESULT = n;
-    :};
-
-functions ::=
-    /* empty */ {: RESULT = new Node("FUNCTIONS"); :} |
-    functions:fs function:f {:
-        Node n = (Node)fs;
-        n.addChild((Node)f);
         RESULT = n;
     :};
 
@@ -165,6 +170,16 @@ semicolon_statement ::=
         n.addChild((Node)e);
         RESULT = n;
     :} |
+    variable:v {: RESULT = (Node)v; :} |
+    RETURN {: RESULT = new Node("RETURN"); :} |
+    RETURN expression:e {:
+        Node n = new Node("RETURN");
+        n.addChild((Node)e);
+        RESULT = n;
+    :} |
+    BREAK {: RESULT = new Node("BREAK"); :};
+
+variable ::=
     datatype:dt IDENTIFIER:id {:
         Node n = new Node("DECLARATION");
         n.addChild((Node)dt);
@@ -183,14 +198,7 @@ semicolon_statement ::=
         n.addChild(new Node(id));
         n.addChild((Node)e);
         RESULT = n;
-    :} |
-    RETURN {: RESULT = new Node("RETURN"); :} |
-    RETURN expression:e {:
-        Node n = new Node("RETURN");
-        n.addChild((Node)e);
-        RESULT = n;
-    :} |
-    BREAK {: RESULT = new Node("BREAK"); :};
+    :};
 
 statement ::=
     semicolon_statement:ss SEMICOL {: RESULT = (Node)ss; :} |
