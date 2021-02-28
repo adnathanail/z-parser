@@ -482,16 +482,10 @@ value ::=
 
 dottable_variable_identifier ::=
     IDENTIFIER:i {: RESULT = new Node(i); :} |
-    dottable_variable_identifier:dvi1 LSQUARE dottable_variable_identifier:dvi2 RSQUARE {:
+    dottable_variable_identifier:dvi1 LSQUARE expression:e RSQUARE {:
         Node n = new Node("IDENTIFIER");
         n.addChild((Node)dvi1);
-        n.addChild((Node)dvi2);
-        RESULT = n;
-    :} |
-    dottable_variable_identifier:dvi LSQUARE INTEGER:i RSQUARE {:
-        Node n = new Node("IDENTIFIER");
-        n.addChild((Node)dvi);
-        n.addChild(new Node(i));
+        n.addChild((Node)e);
         RESULT = n;
     :};
 
