@@ -58,6 +58,7 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "]"            { return symbol(sym.RSQUARE);                             }
     "]"            { return symbol(sym.RSQUARE);                             }
     ","            { return symbol(sym.COMMA);                               }
+    "+"            { return symbol(sym.PLUS);                                }
 
     \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
     {Rational}     { return symbol(sym.RATIONAL, yytext());                  }

@@ -74,14 +74,16 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS;
 
-nonterminal program, statements, statement, value, optional_return, datatype, sequence, sequence_items;
+nonterminal program, statements, statement, value, datatype, sequence, sequence_items, functions, function, parameters, parameter_items, number, main, argument_items, arguments;
 
-program ::=
-    FDEF MAIN LPAREN RPAREN LCURL statements:ss optional_return RCURL SEMICOL {:
-        Node n = new Node("MAIN");
-        n.addChild((Node)ss);
+precedence left PLUS;
+
+program ::= functions:fs main:m {:
+        Node n = new Node("PROGRAM");
+        n.addChild((Node)fs);
+        n.addChild((Node)m);
 
         // System.out.println("digraph G {");
         // System.out.println(n);
@@ -90,9 +92,61 @@ program ::=
         RESULT = n;
     :};
 
-optional_return ::=
-    /* empty */ |
-    RETURN SEMICOL;
+/* TODO prevent main having return values */
+main ::=
+    FDEF MAIN LPAREN RPAREN LCURL statements:ss RCURL SEMICOL {:
+        Node n = new Node("MAIN");
+        n.addChild((Node)ss);
+        RESULT = n;
+    :};
+
+functions ::=
+    /* empty */ {: RESULT = new Node("FUNCTIONS"); :} |
+    functions:fs function:f {:
+        Node n = (Node)fs;
+        n.addChild((Node)f);
+        RESULT = n;
+    :};
+
+function ::= FDEF datatype:dt IDENTIFIER:i parameters:ps LCURL statements:ss RCURL SEMICOL {:
+        Node n = new Node("FUNCTION");
+        n.addChild((Node)dt);
+        n.addChild((Node)ps);
+        n.addChild((Node)ss);
+        RESULT = n;
+    :};
+
+parameters ::= LPAREN parameter_items:pis RPAREN {: RESULT = pis; :};
+
+parameter_items ::=
+    /* empty */ {: RESULT = new Node("PARAMETERS"); :} |
+    datatype:dt value:v {:
+        Node n = new Node("PARAMETERS");
+        n.addChild((Node)dt);
+        n.addChild((Node)v);
+        RESULT = n;
+    :} |
+    parameter_items:pis COMMA datatype:dt value:v {:
+        Node n = (Node)pis;
+        n.addChild((Node)dt);
+        n.addChild((Node)v);
+        RESULT = n;
+    :};
+
+arguments ::= LPAREN argument_items:ais RPAREN {: RESULT = ais; :};
+
+argument_items ::=
+    /* empty */ {: RESULT = new Node("ARGUMENTS"); :} |
+    value:v {:
+        Node n = new Node("ARGUMENTS");
+        n.addChild((Node)v);
+        RESULT = n;
+    :} |
+    argument_items:ais COMMA value:v {:
+        Node n = (Node)ais;
+        n.addChild((Node)v);
+        RESULT = n;
+    :};
 
 statements ::=
     statements:ss statement:s SEMICOL {:
@@ -110,10 +164,22 @@ statement ::=
         n.addChild(new Node(s));
         RESULT = n;
     :} |
+    datatype:dt IDENTIFIER:id {:
+        Node n = new Node("DECLARATION");
+        n.addChild((Node)dt);
+        n.addChild(new Node(id));
+        RESULT = n;
+    :} |
     datatype:dt IDENTIFIER:id ASSIGN value:v {:
         Node n = new Node("ASSIGNMENT");
         n.addChild((Node)dt);
         n.addChild(new Node(id));
+        n.addChild((Node)v);
+        RESULT = n;
+    :} |
+    RETURN {: RESULT = new Node("RETURN"); :} |
+    RETURN value:v {:
+        Node n = new Node("RETURN");
         n.addChild((Node)v);
         RESULT = n;
     :};
@@ -142,9 +208,22 @@ sequence_items ::=
     :};
 
 value ::=
+    value:v1 PLUS value:v2 {:
+        Node n = new Node("PLUS");
+        n.addChild((Node)v1);
+        n.addChild((Node)v2);
+        RESULT = n;
+    :} |
+    IDENTIFIER:i arguments:as {:
+        Node n = new Node("FUNCTION CALL");
+        n.addChild(new Node(i));
+        n.addChild((Node)as);
+        RESULT = n;
+    :} |
     INTEGER:i    {: RESULT = new Node(i); :} |
-    CHAR:c       {: RESULT = new Node(c); :} |
-    IDENTIFIER:i {: RESULT = new Node(i); :} |
     FLOAT:f      {: RESULT = new Node(f); :} |
     RATIONAL:r   {: RESULT = new Node(r); :} |
+    CHAR:c       {: RESULT = new Node(c); :} |
+    IDENTIFIER:i {: RESULT = new Node(i); :} |
+    number:n     {: RESULT = new Node(n); :} |
     sequence:s   {: RESULT = s; :};
