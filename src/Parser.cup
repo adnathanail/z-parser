@@ -114,7 +114,14 @@ main ::=
         RESULT = n;
     :};
 
-function ::= FDEF datatype:dt IDENTIFIER:i parameters:ps LCURL statements:ss RCURL SEMICOL {:
+function ::=
+    FDEF IDENTIFIER:i parameters:ps LCURL statements:ss RCURL SEMICOL {:
+        Node n = new Node("FUNCTION");
+        n.addChild((Node)ps);
+        n.addChild((Node)ss);
+        RESULT = n;
+    :} |
+    FDEF datatype:dt IDENTIFIER:i parameters:ps LCURL statements:ss RCURL SEMICOL {:
         Node n = new Node("FUNCTION");
         n.addChild((Node)dt);
         n.addChild((Node)ps);

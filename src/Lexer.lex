@@ -18,6 +18,8 @@ import java_cup.runtime.*;
 %}
 
 Whitespace = \r|\n|\r\n|" "|"\t"
+SglComment = "#" .*
+MltComment = "/#" ~"#/"
 Letter = [a-zA-Z]
 Digit = [0-9]
 CharChar = {Letter} | {Digit} | " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | \\  | "]" | "^" | "_" | "`" | "{" | "¦" |  "}" | "~"
@@ -49,6 +51,8 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "seq"          { return symbol(sym.SEQ);                                 }
 
     {Whitespace}   { /* do nothing */                                        }
+    {SglComment}   { /* do nothing */                                        }
+    {MltComment}   { /* do nothing */                                        }
 
     // Characters
     ";"            { return symbol(sym.SEMICOL);                             }
