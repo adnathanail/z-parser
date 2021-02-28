@@ -52,15 +52,17 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "thread"       { return symbol(sym.THREAD);                              }
     "wait"         { return symbol(sym.WAIT);                                }
     "alias"        { return symbol(sym.ALIAS);                               }
+    "T"            { return symbol(sym.TRUE);                                }
+    "F"            { return symbol(sym.FALSE);                               }
 
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
     "seq"          { return symbol(sym.SEQ);                                 }
     "dict"         { return symbol(sym.DICT);                                }
     "top"          { return symbol(sym.TOP);                                 }
 
-    {Whitespace}   {                                        }
-    {SglComment}   {                                        }
-    {MltComment}   {                                        }
+    {Whitespace}   { /* do nothing */                                        }
+    {SglComment}   { /* do nothing */                                        }
+    {MltComment}   { /* do nothing */                                        }
 
     // Characters
     ";"            { return symbol(sym.SEMICOL);                             }
@@ -87,7 +89,8 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "!="           { return symbol(sym.NEQ);                                 }
     ":"            { return symbol(sym.COLON);                               }
     "?"            { return symbol(sym.QUEST);                               }
-    "."            { return symbol(sym.DOT);                               }
+    "."            { return symbol(sym.DOT);                                 }
+    "^"            { return symbol(sym.POW);                                 }
 
     \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
     {Rational}     { return symbol(sym.RATIONAL, yytext());                  }

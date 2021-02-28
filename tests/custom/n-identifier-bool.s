@@ -1,3 +1,3 @@
 fdef main() {
-    int T = 1;
+    int T := 1;
 };

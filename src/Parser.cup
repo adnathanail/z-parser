@@ -76,9 +76,9 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, TDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP, ALIAS, DOT;
+terminal ILLEGAL_CHARACTER, FDEF, TDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP, ALIAS, DOT, POW;
 
-nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in, definition, typedef, dottable_variable_identifier;
+nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in, definition, typedef, dottable_variable_identifier, maths_pow;
 
 
 program ::= definitions:ds main:m {:
@@ -437,15 +437,24 @@ maths_factor ::=
     maths_term:mt {: RESULT = (Node)mt; :};
 
 maths_term ::=
-    maths_term:mt MULT value:v {:
+    maths_term:mt MULT maths_pow:mp {:
         Node n = new Node("MULT");
         n.addChild((Node)mt);
-        n.addChild((Node)v);
+        n.addChild((Node)mp);
         RESULT = n;
     :} |
-    maths_term:mt DIV value:v {:
+    maths_term:mt DIV maths_pow:mp {:
         Node n = new Node("DIV");
         n.addChild((Node)mt);
+        n.addChild((Node)mp);
+        RESULT = n;
+    :} |
+    maths_pow:mp {: RESULT = (Node)mp; :};
+
+maths_pow ::=
+    maths_pow:mp POW value:v {:
+        Node n = new Node("POW");
+        n.addChild((Node)mp);
         n.addChild((Node)v);
         RESULT = n;
     :} |
