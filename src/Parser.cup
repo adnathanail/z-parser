@@ -175,8 +175,10 @@ statements ::=
         n.addChild((Node)s);
         RESULT = n;
     :} |
-    /* empty */ {:
-        RESULT = new Node("STATEMENTS");
+    statement:s {:
+        Node n = new Node("STATEMENTS");
+        n.addChild((Node)s);
+        RESULT = n;
     :};
 
 semicolon_statement ::=
