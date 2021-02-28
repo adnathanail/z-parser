@@ -21,7 +21,7 @@ Whitespace = \r|\n|\r\n|" "|"\t"
 SglComment = "#" .*
 MltComment = "/#" ~"#/"
 Letter = [a-zA-Z]
-Digit = [0-9]
+Digit = [_0-9]
 CharChar = {Letter} | {Digit} | " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | \\  | "]" | "^" | "_" | "`" | "{" | "¦" |  "}" | "~"
 /* ' and " ?? */
 String = {CharChar}+
@@ -29,9 +29,9 @@ PrimType = "bool" | "int" | "rat" | "float" | "char" | "str"
 IdChar = {Letter} | {Digit} | "_"
 Identifier = {Letter}{IdChar}*
 Natural = 0|[1-9]{Digit}*
-NonZeroNatural = [1-9]{Digit}*
+NonZeroNatural = [_1-9]{Digit}*
 Integer = {Natural}
-Float = {Integer} "." {Digit}?
+Float = {Integer} "." {Digit}+
 Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
 
 %%
@@ -94,9 +94,9 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "^"            { return symbol(sym.POW);                                 }
 
     \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
-    {Rational}     { return symbol(sym.RATIONAL, yytext());                  }
-    {Integer}      { return symbol(sym.INTEGER, Integer.parseInt(yytext())); }
-    {Float}        { return symbol(sym.FLOAT, Float.parseFloat(yytext()));   }
+    {Rational}     { return symbol(sym.RATIONAL, yytext().replaceAll("_", ""));                  }
+    {Integer}      { return symbol(sym.INTEGER, Integer.parseInt(yytext().replaceAll("_", ""))); }
+    {Float}        { return symbol(sym.FLOAT, Float.parseFloat(yytext().replaceAll("_", "")));   }
     {Identifier}   { return symbol(sym.IDENTIFIER, yytext());                }
     \"{String}\"   {
         String str =  yytext().substring(1,yylength()-1);
