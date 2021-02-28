@@ -23,7 +23,7 @@ Digit = [0-9]
 CharChar = {Letter} | {Digit} | " " | "!" | "#" | "$" | "%" | "&" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | \\  | "]" | "^" | "_" | "`" | "{" | "¦" |  "}" | "~"
 /* ' and " ?? */
 String = {CharChar}+
-DataType = "bool" | "int" | "rat" | "float" | "char" | "str" | "seq"
+PrimType = "bool" | "int" | "rat" | "float" | "char" | "str"
 IdLetter = [a-eg-su-zA-EG-SU-Z]
 IdChar = {IdLetter} | {Digit} | "_"
 Identifier = {Letter}{IdChar}*
@@ -40,7 +40,8 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "print"        { return symbol(sym.PRINT);                               }
     "main"         { return symbol(sym.MAIN);                                }
     "return"       { return symbol(sym.RETURN);                              }
-    {DataType}     { return symbol(sym.DATATYPE, yytext());                  }
+    {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
+    "seq"          { return symbol(sym.SEQ);                                 }
 
     {Whitespace}   { /* do nothing */                                        }
 
@@ -51,6 +52,12 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "{"            { return symbol(sym.LCURL);                               }
     "}"            { return symbol(sym.RCURL);                               }
     ":="           { return symbol(sym.ASSIGN);                              }
+    "<"            { return symbol(sym.LANGLE);                              }
+    ">"            { return symbol(sym.RANGLE);                              }
+    "["            { return symbol(sym.LSQUARE);                             }
+    "]"            { return symbol(sym.RSQUARE);                             }
+    "]"            { return symbol(sym.RSQUARE);                             }
+    ","            { return symbol(sym.COMMA);                               }
 
     \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
     {Rational}     { return symbol(sym.RATIONAL, yytext());                  }

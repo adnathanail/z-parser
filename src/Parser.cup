@@ -74,9 +74,9 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, DATATYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA;
 
-nonterminal program, statements, statement, value, optional_return;
+nonterminal program, statements, statement, value, optional_return, datatype, sequence, sequence_items;
 
 program ::=
     FDEF MAIN LPAREN RPAREN LCURL statements:ss optional_return RCURL SEMICOL {:
@@ -110,17 +110,41 @@ statement ::=
         n.addChild(new Node(s));
         RESULT = n;
     :} |
-    DATATYPE:dt IDENTIFIER:id ASSIGN value:v {:
+    datatype:dt IDENTIFIER:id ASSIGN value:v {:
         Node n = new Node("ASSIGNMENT");
-        n.addChild(new Node(dt));
+        n.addChild((Node)dt);
         n.addChild(new Node(id));
-        n.addChild(new Node(v));
+        n.addChild((Node)v);
+        RESULT = n;
+    :};
+
+datatype ::=
+    PRIMTYPE:dt {: RESULT = new Node(dt); :} |
+    SEQ LANGLE datatype:dt RANGLE {:
+        Node n = new Node("SEQUENCE");
+        n.addChild((Node)dt);
+        RESULT = n;
+    :};
+
+sequence ::= LSQUARE sequence_items:sis RSQUARE {: RESULT = sis; :};
+
+sequence_items ::=
+    /* empty */ {: RESULT = new Node("SEQUENCE"); :} |
+    value:v {:
+        Node n = new Node("SEQUENCE");
+        n.addChild((Node)v);
+        RESULT = n;
+    :} |
+    sequence_items:sis COMMA value:v {:
+        Node n = (Node)sis;
+        n.addChild((Node)v);
         RESULT = n;
     :};
 
 value ::=
-    INTEGER:i {: RESULT = i; :} |
-    CHAR:c {: RESULT = c; :} |
-    IDENTIFIER:i {: RESULT = i; :} |
-    FLOAT:f {: RESULT = f; :} |
-    RATIONAL:r {: RESULT = r; :};
+    INTEGER:i    {: RESULT = new Node(i); :} |
+    CHAR:c       {: RESULT = new Node(c); :} |
+    IDENTIFIER:i {: RESULT = new Node(i); :} |
+    FLOAT:f      {: RESULT = new Node(f); :} |
+    RATIONAL:r   {: RESULT = new Node(r); :} |
+    sequence:s   {: RESULT = s; :};
