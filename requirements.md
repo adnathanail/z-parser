@@ -13,47 +13,30 @@
  - [x] §13 Applications of the operators listed in Table 2 result in expressions. Table 3 exemplifies Z˜ expressions. Specifically, “!” denotes logical not, “&&” logical and, and “||” logical or, as is typical in the C language family. In Z˜, “=” is referential equality and “:=” is the assignment operator. The ? operator checks whether a key is present in a dictionary, as in 2 ? (1:"one", 2:"two"), and returns a boolean. The “+” operator over sequences denotes concatenation. Field accesses are expressions and have the syntax id.field. Parentheses “()” enforce precedence.
  - [x] §14 Function calls are expressions. The actual parameters of function calls are also expressions that, in the semantic phase (i.e. not this coursework), would be required to produce a type that can unify with the type of their parameter.
  - [x] §15 The syntax of variable declaration is “type id;”. Variables may be initialised at the time of declaration: “type id := exp;”.
- - [ ] §16 A data type definition is `tdef type_id { declaration_list } ;` where declaration_list is a comma-separated list of variable declarations. These variables are called fields. For newly defined types, initialisation consists of a sequence of comma-separated values, each of which is assigned to the data type fields in the order of declaration. Listing 3 contains examples.
- - [ ] §17 For readability, Z˜ supports type aliasing: the statement “alias old_name new_name;” allows using new_name in place of old_name.
+ - [x] §16 A data type definition is `tdef type_id { declaration_list } ;` where declaration_list is a comma-separated list of variable declarations. These variables are called fields. For newly defined types, initialisation consists of a sequence of comma-separated values, each of which is assigned to the data type fields in the order of declaration. Listing 3 contains examples.
+ - [x] §17 For readability, Z˜ supports type aliasing: the statement “alias old_name new_name;” allows using new_name in place of old_name.
 ```
 tdef person { str name, str surname, int age };
 alias seq<person> people;
 tdef family { person mother, person father, people children };
 ```
- - [ ] §18 Listing 2 shows the syntax of function definitions in Z˜. Specifically, a function’s name is an identifier. The formal_parameter_list separates parameter declarations, which follow the variable declaration syntax type id, with commas. A function’s body cannot be empty; it starts with declarations or definitions for local variables, followed by other statements. The return type of a function, return_type, can be omitted when the function does not return a value. The main function does not return a value; that is, return statements in main cannot have a value.
+ - [x] §18 Listing 2 shows the syntax of function definitions in Z˜. Specifically, a function’s name is an identifier. The formal_parameter_list separates parameter declarations, which follow the variable declaration syntax type id, with commas. A function’s body cannot be empty; it starts with declarations or definitions for local variables, followed by other statements. The return type of a function, return_type, can be omitted when the function does not return a value. The main function does not return a value; that is, return statements in main cannot have a value.
  - [ ] §19 In Table 4, var indicates a variable. An expression_list is a comma-separated list of expressions. As above, a body consists of local variable declarations (if any), followed by statements. Statements, apart from if-else and while, terminate with a semicolon. The return statement appears in a function body and is optional. In any if statement, there can be zero or one else branch.
- - [ ] §20 The statement read var_id; reads a value from the standard input and stores it in var_id; the statement
+ - [x] §20 The statement read var_id; reads a value from the standard input and stores it in var_id; the statement
 print exp; prints evaluation of exp, followed by a newline.
- - [ ] §21 The if statement behaves like that in the C family language. In any if statement, there can be zero or more elif branches, followed by either zero or one else branch.
+ - [x] §21 The if statement behaves like that in the C family language. In any if statement, there can be zero or more elif branches, followed by either zero or one else branch.
  - [ ] §22 The unguarded while statement is the only explicit loop construct in Z˜. To exit a loop, one must use break N, usually coupled with an if statement; the optional argument N is a positive integer that specifies the number of nested loops to exit and defaults to 1. The use of break statement is forbidden outside a loop. Listing 4 shows how to use while and break.
  - [ ] §23 Z˜ enables multithreading through the thread type. You must associate a block of code with each thread variable at declaration. When control reaches a thread declaration, a new thread is created to start executing the code in the associated block; the original thread returns from this assignment immediately and resumes execution with the next statement. You may call the built-in function wait to wait for a particular thread to finish. The calling thread will block until the parameter thread is finished. Listing 5 creates two threads, t1 and t2, each of which will print a sentence before the main thread terminates.
  - [ ] §24 Listing 6 shows an example program in Z˜: it defines a function to reverse a sequence.
- - [ ] §25 Your parser will be tested against a test suite of public test cases provided via Moodle and private ones. This testing is scripted; so it is important for your output to match what the script expects.
- - [ ] §26 The test cases include positive tests, on which your parser must emit "Parsing successful." followed by a newline and nothing else, and negative tests on which your parser must emit the correct line and column of the error.
+ - [x] §25 Your parser will be tested against a test suite of public test cases provided via Moodle and private ones. This testing is scripted; so it is important for your output to match what the script expects.
+ - [x] §26 The test cases include positive tests, on which your parser must emit "Parsing successful." followed by a newline and nothing else, and negative tests on which your parser must emit the correct line and column of the error.
  - [ ] §27 The provided SC class uses a boolean field syntaxErrors of the parser object to decide whether parsing is successful. So please find such a public field in the Parser class and set it to true when a syntax error is generated.
  - [ ] §28 Your scanner (lexer) must
    - Use JFlex (or JFlex) to automatically generate a scanner for the Z˜ language;
    - Make use of macro definitions where necessary. Choose meaningful token type names to make your specification readable and understandable;
    - Ignore whitespace and comments; and
    - Report the line and the column (offset into the line) where an error, usually unexpected input, first occurred. Section 3 specifies the format that will be matched by the grading script.
- - [ ] §29 Your parser must
+ - [x] §29 Your parser must
    - Use CUP to automatically produce a parser for the Z˜ language;
    - Resolve ambiguities in expressions using the precedence and associativity rules;
    - Print “Parsing successful.”, followed by a newline, if the program is syntactically correct.
- - [ ] §30 Your scanner and parser must work together.
- - [ ] §31 Once the scanner and parser have been successfully produced using JFlex and CUP, use the provided SC class to test your code on the test files given on the course webpage.
- - [ ] §32 I have provided a makefile on Moodle. This makefile must build your project, from source, when make is issued,
-   - using JFlex 1.8.2
-   - using Cup version 11b-20160615
-   - using Java SE 8
-   - on CentOS 7.6
- - [ ] §33 If your submission fails to build using this makefile with these versions of the tools and on the specified operating system, your mark will be zero.
- - [ ] §34 The provided makefile has a test rule. The marking script will call this rule to run your parser against the tests.
- - [ ] §35 We enforce a special testing mechanism: we will run your submission against a negative tests, only if it passes the corresponding atomic positive test. The relations are indicated by the names of the tests:
-   - p-foo.s is an atomic test that assesses the language feature foo;
-   - p-foo-bar.s is not an atomic test, but it also assesses the feature foo;
-   - n-foo[-bar].s depends on p-foo.s and assesses the feature foo.
- - [ ] §36 Your mark will be the number of positive tests cases you correctly pass and the number of negative test cases you correctly fail divided by the total number of test cases.
- - [ ] §37 Each student must follow the submission instructions detailed in Section 5 to submit the coursework.
- - [ ] §38 The deadline for this coursework is Monday 1st March 2021 @ 16:00 UK time. We strictly adhere to UCL Academic Manual - Chapter 4: Assessment Framework for Taught Programmes and therefore impose the university’s late submission penalties (visit this page for more information). However, COMPILERBOT will reject any submissions 5 working days after the deadline. If you still would like to submit after that, please attach your code in an email to Zheng Gao <z.gao.12@ucl.ac.uk>.
- - [ ] §39 To distribute coursework workload more evenly across the academic year, the department has implemented a policy for spacing deadlines. As a result, you are getting more time to complete this coursework than the students from previous years. COMPILERBOT will start accepting submissions from Friday 5th February 2021 @ 16:00 UK time.

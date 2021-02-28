@@ -40,6 +40,7 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "fdef"         { return symbol(sym.FDEF);                                }
     "tdef"         { return symbol(sym.TDEF);                                }
     "print"        { return symbol(sym.PRINT);                               }
+    "read"         { return symbol(sym.READ);                                }
     "if"           { return symbol(sym.IF);                                  }
     "else"         { return symbol(sym.ELSE);                                }
     "main"         { return symbol(sym.MAIN);                                }
