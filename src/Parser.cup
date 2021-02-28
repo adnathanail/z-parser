@@ -74,11 +74,10 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ;
 
-nonterminal program, statements, statement, value, datatype, sequence, sequence_items, functions, function, parameters, parameter_items, number, main, argument_items, arguments;
+nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, functions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term;
 
-precedence left PLUS;
 
 program ::= functions:fs main:m {:
         Node n = new Node("PROGRAM");
@@ -120,16 +119,16 @@ parameters ::= LPAREN parameter_items:pis RPAREN {: RESULT = pis; :};
 
 parameter_items ::=
     /* empty */ {: RESULT = new Node("PARAMETERS"); :} |
-    datatype:dt value:v {:
+    datatype:dt expression:e {:
         Node n = new Node("PARAMETERS");
         n.addChild((Node)dt);
-        n.addChild((Node)v);
+        n.addChild((Node)e);
         RESULT = n;
     :} |
-    parameter_items:pis COMMA datatype:dt value:v {:
+    parameter_items:pis COMMA datatype:dt expression:e {:
         Node n = (Node)pis;
         n.addChild((Node)dt);
-        n.addChild((Node)v);
+        n.addChild((Node)e);
         RESULT = n;
     :};
 
@@ -137,19 +136,19 @@ arguments ::= LPAREN argument_items:ais RPAREN {: RESULT = ais; :};
 
 argument_items ::=
     /* empty */ {: RESULT = new Node("ARGUMENTS"); :} |
-    value:v {:
+    expression:e {:
         Node n = new Node("ARGUMENTS");
-        n.addChild((Node)v);
+        n.addChild((Node)e);
         RESULT = n;
     :} |
-    argument_items:ais COMMA value:v {:
+    argument_items:ais COMMA expression:e {:
         Node n = (Node)ais;
-        n.addChild((Node)v);
+        n.addChild((Node)e);
         RESULT = n;
     :};
 
 statements ::=
-    statements:ss statement:s SEMICOL {:
+    statements:ss statement:s {:
         Node n = (Node)ss;
         n.addChild((Node)s);
         RESULT = n;
@@ -158,7 +157,7 @@ statements ::=
         RESULT = new Node("STATEMENTS");
     :};
 
-statement ::=
+semicolon_statement ::=
     PRINT STRING:s {:
         Node n = new Node("PRINT");
         n.addChild(new Node(s));
@@ -170,17 +169,32 @@ statement ::=
         n.addChild(new Node(id));
         RESULT = n;
     :} |
-    datatype:dt IDENTIFIER:id ASSIGN value:v {:
-        Node n = new Node("ASSIGNMENT");
+    datatype:dt IDENTIFIER:id ASSIGN expression:e {:
+        Node n = new Node("INITIALISATION");
         n.addChild((Node)dt);
         n.addChild(new Node(id));
-        n.addChild((Node)v);
+        n.addChild((Node)e);
+        RESULT = n;
+    :} |
+    IDENTIFIER:id ASSIGN expression:e {:
+        Node n = new Node("ASSIGNMENT");
+        n.addChild(new Node(id));
+        n.addChild((Node)e);
         RESULT = n;
     :} |
     RETURN {: RESULT = new Node("RETURN"); :} |
-    RETURN value:v {:
+    RETURN expression:e {:
         Node n = new Node("RETURN");
-        n.addChild((Node)v);
+        n.addChild((Node)e);
+        RESULT = n;
+    :};
+
+statement ::=
+    semicolon_statement:ss SEMICOL {: RESULT = (Node)ss; :} |
+    IF LPAREN expression:e RPAREN LCURL statements:ss RCURL {:
+        Node n = new Node("IF");
+        n.addChild((Node)e);
+        n.addChild((Node)ss);
         RESULT = n;
     :};
 
@@ -196,34 +210,126 @@ sequence ::= LSQUARE sequence_items:sis RSQUARE {: RESULT = sis; :};
 
 sequence_items ::=
     /* empty */ {: RESULT = new Node("SEQUENCE"); :} |
-    value:v {:
+    expression:e {:
         Node n = new Node("SEQUENCE");
-        n.addChild((Node)v);
+        n.addChild((Node)e);
         RESULT = n;
     :} |
-    sequence_items:sis COMMA value:v {:
+    sequence_items:sis COMMA expression:e {:
         Node n = (Node)sis;
-        n.addChild((Node)v);
+        n.addChild((Node)e);
         RESULT = n;
     :};
 
-value ::=
-    value:v1 PLUS value:v2 {:
-        Node n = new Node("PLUS");
-        n.addChild((Node)v1);
-        n.addChild((Node)v2);
+expression ::=
+    bool_or:bo {: RESULT = (Node)bo; :};
+
+bool_or ::=
+    bool_or:bo OR bool_and:ba {:
+        Node n = new Node("OR");
+        n.addChild((Node)bo);
+        n.addChild((Node)ba);
         RESULT = n;
     :} |
+    bool_and:ba {: RESULT = (Node)ba; :};
+
+bool_and ::=
+    bool_and:ba AND bool_not:bn {:
+        Node n = new Node("AND");
+        n.addChild((Node)ba);
+        n.addChild((Node)bn);
+        RESULT = n;
+    :} |
+    bool_not:bn {: RESULT = (Node)bn; :};
+
+bool_not ::=
+    NOT bool_not:bn {:
+        Node n = new Node("NOT");
+        n.addChild((Node)bn);
+        RESULT = n;
+    :} |
+    comp_less:cl {: RESULT = (Node)cl; :};
+
+comp_less ::=
+    comp_less:cle LANGLE comp_leq:cleq {:
+        Node n = new Node("LESSTHAN");
+        n.addChild((Node)cle);
+        n.addChild((Node)cleq);
+        RESULT = n;
+    :} |
+    comp_leq:cleq {: RESULT = (Node)cleq; :};
+
+comp_leq ::=
+    comp_leq:cl LEQ comp_neq:cn {:
+        Node n = new Node("LESSOREQUAL");
+        n.addChild((Node)cl);
+        n.addChild((Node)cn);
+        RESULT = n;
+    :} |
+    comp_neq:cn {: RESULT = (Node)cn; :};
+
+comp_neq ::=
+    comp_neq:cn NEQ comp_equal:ce {:
+        Node n = new Node("NOTEQUAL");
+        n.addChild((Node)cn);
+        n.addChild((Node)ce);
+        RESULT = n;
+    :} |
+    comp_equal:ce {: RESULT = (Node)ce; :};
+
+comp_equal ::=
+    comp_equal:ce EQUAL maths_factor:mf {:
+        Node n = new Node("EQUAL");
+        n.addChild((Node)ce);
+        n.addChild((Node)mf);
+        RESULT = n;
+    :} |
+    maths_factor:mf {: RESULT = (Node)mf; :};
+
+maths_factor ::=
+    maths_factor:mf PLUS maths_term:mt {:
+        Node n = new Node("PLUS");
+        n.addChild((Node)mf);
+        n.addChild((Node)mt);
+        RESULT = n;
+    :} |
+    maths_factor:mf MINUS maths_term:mt {:
+        Node n = new Node("MINUS");
+        n.addChild((Node)mf);
+        n.addChild((Node)mt);
+        RESULT = n;
+    :} |
+    maths_term:mt {: RESULT = (Node)mt; :};
+
+maths_term ::=
+    maths_term:mt MULT value:v {:
+        Node n = new Node("MULT");
+        n.addChild((Node)mt);
+        n.addChild((Node)v);
+        RESULT = n;
+    :} |
+    maths_term:mt DIV value:v {:
+        Node n = new Node("DIV");
+        n.addChild((Node)mt);
+        n.addChild((Node)v);
+        RESULT = n;
+    :} |
+    value:v {: RESULT = (Node)v; :};
+
+value ::=
+    INTEGER:i        {: RESULT = new Node(i); :} |
+    FLOAT:f          {: RESULT = new Node(f); :} |
+    RATIONAL:r       {: RESULT = new Node(r); :} |
+    CHAR:c           {: RESULT = new Node(c); :} |
+    number:n         {: RESULT = new Node(n); :} |
+    sequence:s       {: RESULT = s; :} |
+    TRUE             {: RESULT = new Node("TRUE"); :} |
+    FALSE            {: RESULT = new Node("TRUE"); :} |
     IDENTIFIER:i arguments:as {:
         Node n = new Node("FUNCTION CALL");
         n.addChild(new Node(i));
         n.addChild((Node)as);
         RESULT = n;
     :} |
-    INTEGER:i    {: RESULT = new Node(i); :} |
-    FLOAT:f      {: RESULT = new Node(f); :} |
-    RATIONAL:r   {: RESULT = new Node(r); :} |
-    CHAR:c       {: RESULT = new Node(c); :} |
-    IDENTIFIER:i {: RESULT = new Node(i); :} |
-    number:n     {: RESULT = new Node(n); :} |
-    sequence:s   {: RESULT = s; :};
+    IDENTIFIER:i     {: RESULT = new Node(i); :} |
+    LPAREN expression:e RPAREN {: RESULT = (Node)e; :};

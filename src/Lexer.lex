@@ -38,6 +38,7 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     // Keywords
     "fdef"         { return symbol(sym.FDEF);                                }
     "print"        { return symbol(sym.PRINT);                               }
+    "if"           { return symbol(sym.IF);                                  }
     "main"         { return symbol(sym.MAIN);                                }
     "return"       { return symbol(sym.RETURN);                              }
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */
@@ -59,6 +60,15 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "]"            { return symbol(sym.RSQUARE);                             }
     ","            { return symbol(sym.COMMA);                               }
     "+"            { return symbol(sym.PLUS);                                }
+    "-"            { return symbol(sym.MINUS);                               }
+    "*"            { return symbol(sym.MULT);                                }
+    "/"            { return symbol(sym.DIV);                                 }
+    "!"            { return symbol(sym.NOT);                                 }
+    "&&"           { return symbol(sym.AND);                                 }
+    "||"           { return symbol(sym.OR);                                  }
+    "="            { return symbol(sym.EQUAL);                               }
+    "<="           { return symbol(sym.LEQ);                                 }
+    "!="           { return symbol(sym.NEQ);                                 }
 
     \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
     {Rational}     { return symbol(sym.RATIONAL, yytext());                  }
