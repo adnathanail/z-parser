@@ -1,3 +1,5 @@
+Statements HAVE to go after declarations
+
 CORRECT GUESSES:
 Function body can't be empty
 Main can't return
