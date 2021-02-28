@@ -38,6 +38,7 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
 <YYINITIAL> {
     // Keywords
     "fdef"         { return symbol(sym.FDEF);                                }
+    "tdef"         { return symbol(sym.TDEF);                                }
     "print"        { return symbol(sym.PRINT);                               }
     "if"           { return symbol(sym.IF);                                  }
     "else"         { return symbol(sym.ELSE);                                }
