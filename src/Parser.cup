@@ -78,7 +78,7 @@ parser code {:
 
 terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP;
 
-nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier;
+nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in;
 
 
 program ::= definitions:ds main:m {:
@@ -358,7 +358,16 @@ bool_not ::=
         n.addChild((Node)bn);
         RESULT = n;
     :} |
-    comp_less:cl {: RESULT = (Node)cl; :};
+    comp_in:ci {: RESULT = (Node)ci; :};
+
+comp_in ::=
+    comp_in:ci QUEST comp_less:cle {:
+        Node n = new Node("IN");
+        n.addChild((Node)ci);
+        n.addChild((Node)cle);
+        RESULT = n;
+    :} |
+    comp_less: cle {: RESULT = (Node) cle; :};
 
 comp_less ::=
     comp_less:cle LANGLE comp_leq:cleq {:
