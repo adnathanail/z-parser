@@ -39,6 +39,7 @@ Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
     "fdef"         { return symbol(sym.FDEF);                                }
     "print"        { return symbol(sym.PRINT);                               }
     "if"           { return symbol(sym.IF);                                  }
+    "else"         { return symbol(sym.ELSE);                                }
     "main"         { return symbol(sym.MAIN);                                }
     "return"       { return symbol(sym.RETURN);                              }
     {PrimType}     { return symbol(sym.PRIMTYPE, yytext());                  }  /* TODO use enum? */

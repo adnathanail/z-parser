@@ -74,7 +74,7 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE;
 
 nonterminal program, statements, semicolon_statement, statement, expression, datatype, sequence, sequence_items, functions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_plus, maths_minus, maths_factor, maths_term;
 
@@ -191,6 +191,13 @@ semicolon_statement ::=
 
 statement ::=
     semicolon_statement:ss SEMICOL {: RESULT = (Node)ss; :} |
+    IF LPAREN expression:e RPAREN LCURL statements:ss1 RCURL ELSE LCURL statements:ss2 RCURL {:
+        Node n = new Node("IF");
+        n.addChild((Node)e);
+        n.addChild((Node)ss1);
+        n.addChild((Node)ss2);
+        RESULT = n;
+    :} |
     IF LPAREN expression:e RPAREN LCURL statements:ss RCURL {:
         Node n = new Node("IF");
         n.addChild((Node)e);
