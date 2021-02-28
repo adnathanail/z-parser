@@ -76,9 +76,9 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, TDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP, ALIAS;
+terminal ILLEGAL_CHARACTER, FDEF, TDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, PRIMTYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL, SEQ, RANGLE, LANGLE, LSQUARE, RSQUARE, COMMA, PLUS, MINUS, MULT, DIV, NOT, AND, OR, IF, TRUE, FALSE, EQUAL, LEQ, NEQ, ELSE, WHILE, BREAK, FOR, OF, RANGE, THREAD, WAIT, DICT, COLON, QUEST, TOP, ALIAS, DOT;
 
-nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in, definition, typedef;
+nonterminal program, statements, semicolon_statement, statement, expression, datatype, aggregate_datatype, sequence, sequence_items, definitions, function, parameters, parameter_items, number, main, argument_items, arguments, bool_not, comp_less, comp_leq, comp_neq, comp_equal, value, bool_and, bool_or, maths_factor, maths_term, variable, range, range_val, dictionary, dictionary_items, variable_identifier, comp_in, definition, typedef, dottable_variable_identifier;
 
 
 program ::= definitions:ds main:m {:
@@ -224,17 +224,17 @@ variable ::=
         n.addChild((Node)vi);
         RESULT = n;
     :} |
-    datatype:dt variable_identifier:vi ASSIGN expression:e {:
+    datatype:dt variable_identifier:vi ASSIGN argument_items:ais {:
         Node n = new Node("INITIALISATION");
         n.addChild((Node)dt);
         n.addChild((Node)vi);
-        n.addChild((Node)e);
+        n.addChild((Node)ais);
         RESULT = n;
     :} |
-    variable_identifier:vi ASSIGN expression:e {:
+    variable_identifier:vi ASSIGN argument_items:ais {:
         Node n = new Node("ASSIGNMENT");
         n.addChild((Node)vi);
-        n.addChild((Node)e);
+        n.addChild((Node)ais);
         RESULT = n;
     :};
 
@@ -463,7 +463,7 @@ value ::=
         RESULT = new Node(mf);
     :} |
     RATIONAL:r       {: RESULT = new Node(r); :} |
-    MINUS RATIONAL:r       {: RESULT = new Node("-" + r); :} |
+    MINUS RATIONAL:r {: RESULT = new Node("-" + r); :} |
     CHAR:c           {: RESULT = new Node(c); :} |
     STRING:s         {: RESULT = new Node(s); :} |
     number:n         {: RESULT = new Node(n); :} |
@@ -480,17 +480,29 @@ value ::=
     variable_identifier:vi {: RESULT = (Node)vi; :} |
     LPAREN expression:e RPAREN {: RESULT = (Node)e; :};
 
-variable_identifier ::=
+dottable_variable_identifier ::=
     IDENTIFIER:i {: RESULT = new Node(i); :} |
-    variable_identifier:vi1 LSQUARE variable_identifier:vi2 RSQUARE {:
+    dottable_variable_identifier:dvi1 LSQUARE dottable_variable_identifier:dvi2 RSQUARE {:
         Node n = new Node("IDENTIFIER");
-        n.addChild((Node)vi1);
-        n.addChild((Node)vi2);
+        n.addChild((Node)dvi1);
+        n.addChild((Node)dvi2);
         RESULT = n;
     :} |
-    variable_identifier:vi LSQUARE INTEGER:i RSQUARE {:
+    dottable_variable_identifier:dvi LSQUARE INTEGER:i RSQUARE {:
         Node n = new Node("IDENTIFIER");
-        n.addChild((Node)vi);
+        n.addChild((Node)dvi);
         n.addChild(new Node(i));
+        RESULT = n;
+    :};
+
+variable_identifier ::=
+    dottable_variable_identifier:dvi {:
+        Node n = new Node("IDENTIFIER");
+        n.addChild((Node)dvi);
+        RESULT = n;
+    :} |
+    variable_identifier:vi DOT dottable_variable_identifier:dvi {:
+        Node n = (Node) vi;
+        n.addChild((Node)dvi);
         RESULT = n;
     :};
