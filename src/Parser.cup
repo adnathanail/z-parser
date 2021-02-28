@@ -482,9 +482,28 @@ value ::=
 
 dottable_variable_identifier ::=
     IDENTIFIER:i {: RESULT = new Node(i); :} |
-    dottable_variable_identifier:dvi1 LSQUARE expression:e RSQUARE {:
+    dottable_variable_identifier:dvi LSQUARE expression:e RSQUARE {:
         Node n = new Node("IDENTIFIER");
-        n.addChild((Node)dvi1);
+        n.addChild((Node)dvi);
+        n.addChild((Node)e);
+        RESULT = n;
+    :} |
+    dottable_variable_identifier:dvi LSQUARE expression:e COLON RSQUARE {:
+        Node n = new Node("SLICEFROM");
+        n.addChild((Node)dvi);
+        n.addChild((Node)e);
+        RESULT = n;
+    :} |
+    dottable_variable_identifier:dvi LSQUARE expression:e1 COLON expression:e2 RSQUARE {:
+        Node n = new Node("SLICE");
+        n.addChild((Node)dvi);
+        n.addChild((Node)e1);
+        n.addChild((Node)e2);
+        RESULT = n;
+    :} |
+    dottable_variable_identifier:dvi LSQUARE COLON expression:e RSQUARE {:
+        Node n = new Node("SLICETO");
+        n.addChild((Node)dvi);
         n.addChild((Node)e);
         RESULT = n;
     :};
