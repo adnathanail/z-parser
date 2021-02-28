@@ -74,7 +74,7 @@ parser code {:
 
 :};
 
-terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, DATATYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT;
+terminal ILLEGAL_CHARACTER, FDEF, MAIN, LPAREN, RPAREN, LCURL, RCURL, SEMICOL, PRINT, STRING, DATATYPE, IDENTIFIER, ASSIGN, INTEGER, CHAR, RETURN, FLOAT, RATIONAL;
 
 nonterminal program, statements, statement, value, optional_return;
 
@@ -122,4 +122,5 @@ value ::=
     INTEGER:i {: RESULT = i; :} |
     CHAR:c {: RESULT = c; :} |
     IDENTIFIER:i {: RESULT = i; :} |
-    FLOAT:f {: RESULT = f; :};
+    FLOAT:f {: RESULT = f; :} |
+    RATIONAL:r {: RESULT = r; :};

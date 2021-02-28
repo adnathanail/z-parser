@@ -30,6 +30,8 @@ Identifier = {Letter}{IdChar}*
 Natural = 0|[1-9]{Digit}*
 Integer = "-"? {Natural}
 Float = {Integer} "." {Digit}?
+NonZeroNatural = [1-9]{Digit}*
+Rational = {Integer} {Whitespace}* "/" {Whitespace}* {NonZeroNatural}
 
 %%
 <YYINITIAL> {
@@ -49,10 +51,11 @@ Float = {Integer} "." {Digit}?
     "{"            { return symbol(sym.LCURL);                               }
     "}"            { return symbol(sym.RCURL);                               }
     ":="           { return symbol(sym.ASSIGN);                              }
-    \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
 
+    \'{CharChar}\' { return symbol(sym.CHAR, yytext().charAt(1));            }
+    {Rational}     { return symbol(sym.RATIONAL, yytext());                  }
     {Integer}      { return symbol(sym.INTEGER, Integer.parseInt(yytext())); }
-    {Float}        { return symbol(sym.FLOAT, Float.parseFloat(yytext()));    }
+    {Float}        { return symbol(sym.FLOAT, Float.parseFloat(yytext()));   }
     {Identifier}   { return symbol(sym.IDENTIFIER, yytext());                }
     \"{String}\"   {
         String str =  yytext().substring(1,yylength()-1);
