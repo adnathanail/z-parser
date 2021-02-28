@@ -1,4 +1,0 @@
-fdef main() {
-    break;
-    return;
-};
