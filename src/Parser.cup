@@ -184,7 +184,12 @@ semicolon_statement ::=
         n.addChild((Node)e);
         RESULT = n;
     :} |
-    BREAK {: RESULT = new Node("BREAK"); :};
+    BREAK {: RESULT = new Node("BREAK"); :} |
+    BREAK INTEGER:i {:
+        Node n = new Node("BREAK");
+        n.addChild(new Node(i));
+        RESULT = n;
+    :};
 
 variable ::=
     datatype:dt IDENTIFIER:id {:
